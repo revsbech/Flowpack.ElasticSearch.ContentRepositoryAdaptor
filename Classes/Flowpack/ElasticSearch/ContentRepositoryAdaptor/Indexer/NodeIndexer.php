@@ -308,7 +308,7 @@ class NodeIndexer extends AbstractNodeIndexer implements BulkNodeIndexerInterfac
     {
         $type = NodeTypeMappingBuilder::convertNodeTypeNameToMappingName($node->getNodeType()->getName());
         $this->logger->log(sprintf('NodeIndexer: Check duplicate nodes for %s (%s). ContentContextHash: %s', $contextPath, $type, $contextPathHash), LOG_DEBUG, null, 'ElasticSearch (CR)');
-        $result = $this->getIndex()->request('GET', '/_search?scroll=1m&search_type=scan', [], json_encode([
+        $result = $this->getIndex()->request('GET', '/_search?scroll=1m', [], json_encode([
             'query' => [
                 'bool' => [
                     'must' => [
