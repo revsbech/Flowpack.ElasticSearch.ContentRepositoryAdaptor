@@ -306,9 +306,10 @@ class NodeIndexer extends AbstractNodeIndexer implements BulkNodeIndexerInterfac
      */
     protected function removeDuplicateDocuments($contextPath, $contextPathHash, NodeInterface $node)
     {
+
         $type = NodeTypeMappingBuilder::convertNodeTypeNameToMappingName($node->getNodeType()->getName());
         $this->logger->log(sprintf('NodeIndexer: Check duplicate nodes for %s (%s). ContentContextHash: %s', $contextPath, $type, $contextPathHash), LOG_DEBUG, null, 'ElasticSearch (CR)');
-        $result = $this->getIndex()->request('GET', '/_search?scroll=1m', [], json_encode([
+        $result = $this->getIndex()->request('GET', '/_search?scroll=1m&xx=yy', [], json_encode([
             'query' => [
                 'bool' => [
                     'must' => [
@@ -327,12 +328,12 @@ class NodeIndexer extends AbstractNodeIndexer implements BulkNodeIndexerInterfac
         $treatedContent = $result->getTreatedContent();
         $scrollId = $treatedContent['_scroll_id'];
 
-        $result = $this->getIndex()->request('GET', '/_search/scroll?scroll=1m', [], $scrollId, false);
+        $result = $this->getIndex()->request('DELETE', '/_search/scroll?scroll=1m&xx=yy', [], $scrollId, false);
         $treatedContent = $result->getTreatedContent();
         while (isset($treatedContent['hits']['hits']) && $treatedContent['hits']['hits'] !== []) {
             $hits = $treatedContent['hits']['hits'];
             $this->logger->log(sprintf('NodeIndexer: Check duplicate nodes for %s (%s), found %d document(s). ContentContextHash: %s', $contextPath, $type, count($hits), $contextPathHash), LOG_DEBUG, null, 'ElasticSearch (CR)');
-            $result = $this->getIndex()->request('GET', '/_search/scroll?scroll=1m', [], $scrollId, false);
+            $result = $this->getIndex()->request('DELETE', '/_search/scroll?scroll=1m&xx=yy', [], $scrollId, false);
             $treatedContent = $result->getTreatedContent();
         }
     }
